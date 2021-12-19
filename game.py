@@ -3,9 +3,9 @@ pygame.init()
 
 WIDTH = 600
 HEIGHT = 800
-SHIPWIDTH = 50
-SHIPHEIGHT = 70
-BULLETWIDTH = 7
+SHIPWIDTH = 80
+SHIPHEIGHT = 80
+BULLETWIDTH = 15
 BULLETHEIGHT = 30
 HPBARHEIGHT = 20
 WHITE = (255, 255, 255)
@@ -44,6 +44,8 @@ LASERSFX.set_volume(0.2)
 EXPLOSIONSFX = pygame.mixer.Sound('assets/explosion.wav')
 EXPLOSIONSFX.set_volume(0.2)
 
+FONT = pygame.font.Font('assets/PressStart2P.ttf', 20)
+
 pygame.display.set_caption('Spaceships')
 pygame.display.set_icon(SHIP1)
 
@@ -55,10 +57,11 @@ class Player1(pygame.sprite.Sprite):
         super(Player1, self).__init__()
         self.image = SHIP1
         self.x = WIDTH / 2 - SHIPWIDTH / 2
-        self.y = HEIGHT - SHIPHEIGHT
+        self.y = (HEIGHT - HEIGHT // 4) - SHIPHEIGHT
         self.xspeed = 0
         self.yspeed = 0
         self.health = 100
+        self.ammo = 10
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
     def handle_input(self):
@@ -76,7 +79,7 @@ class Player1(pygame.sprite.Sprite):
     def handle_movement(self):
         if 0 <= (self.xspeed + self.x) <= WIDTH - SHIPWIDTH:
             self.x += self.xspeed
-        if HEIGHT / 2 <= (self.yspeed + self.y) <= HEIGHT - SHIPHEIGHT:
+        if HEIGHT / 2 <= (self.yspeed + self.y) <= HEIGHT - SHIPHEIGHT - HPBARHEIGHT:
             self.y += self.yspeed
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -85,10 +88,8 @@ class Player1(pygame.sprite.Sprite):
 
     def draw_healthbar(self):
         hpsection = WIDTH * self.health / 100
-        remaininghp = pygame.Rect(0, HEIGHT - HPBARHEIGHT,
-                                  hpsection, HPBARHEIGHT)
-        missinghp = pygame.Rect(hpsection, HEIGHT - HPBARHEIGHT,
-                                WIDTH - hpsection, HPBARHEIGHT)
+        remaininghp = pygame.Rect(0, HEIGHT - HPBARHEIGHT, hpsection, HPBARHEIGHT)
+        missinghp = pygame.Rect(hpsection, HEIGHT - HPBARHEIGHT, WIDTH - hpsection, HPBARHEIGHT)
         pygame.draw.rect(screen, GREEN, remaininghp)
         pygame.draw.rect(screen, RED, missinghp)
 
@@ -98,10 +99,11 @@ class Player2(pygame.sprite.Sprite):
         super(Player2, self).__init__()
         self.image = SHIP2
         self.x = WIDTH / 2 - SHIPWIDTH / 2
-        self.y = 0
+        self.y = HEIGHT // 4
         self.xspeed = 0
         self.yspeed = 0
         self.health = 100
+        self.ammo = 10
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
     def handle_input(self):
@@ -119,7 +121,7 @@ class Player2(pygame.sprite.Sprite):
     def handle_movement(self):
         if 0 <= (self.xspeed + self.x) <= WIDTH - SHIPWIDTH:
             self.x += self.xspeed
-        if 0 <= (self.yspeed + self.y) <= (HEIGHT / 2) - SHIPHEIGHT:
+        if HPBARHEIGHT <= (self.yspeed + self.y) <= (HEIGHT / 2) - SHIPHEIGHT:
             self.y += self.yspeed
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -168,6 +170,11 @@ def draw_game():
     p2.draw_healthbar()
     p1.draw()
     p2.draw()
+    p1_ammo_txt = FONT.render(f'Ammo:{p1.ammo}', True, WHITE)
+    p2_ammo_txt = FONT.render(f'Ammo:{p2.ammo}', True, WHITE)
+    p1_ammo_width, p1_ammo_height= FONT.size(f'Ammo:{p1.ammo}')
+    screen.blit(p1_ammo_txt, (WIDTH - p1_ammo_width, HEIGHT - HPBARHEIGHT - p1_ammo_height))
+    screen.blit(p2_ammo_txt, (0, HPBARHEIGHT))
 
 
 def explosion_animation(ship):
@@ -184,6 +191,7 @@ p1 = Player1()
 p2 = Player2()
 p1bullets = []
 p2bullets = []
+ammotimer = 0
 
 while running:
     for event in pygame.event.get():
@@ -206,6 +214,15 @@ while running:
         p1bullets = []
         p2bullets = []
         continue
+    
+    if ammotimer < 30:
+        ammotimer += 1
+    else:
+        ammotimer = 0
+        if p1.ammo < 10:
+            p1.ammo += 1
+        if p2.ammo < 10:
+            p2.ammo += 1
 
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
@@ -213,11 +230,15 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                LASERSFX.play()
-                p1bullets.append(Bullet1(p1))
+                if p1.ammo > 0:
+                    p1.ammo -= 1
+                    LASERSFX.play()
+                    p1bullets.append(Bullet1(p1))
             if event.key == pygame.K_RSHIFT:
-                LASERSFX.play()
-                p2bullets.append(Bullet2(p2))
+                if p2.ammo > 0:
+                    p2.ammo -= 1
+                    LASERSFX.play()
+                    p2bullets.append(Bullet2(p2))
 
     p1.handle_input()
     p2.handle_input()
@@ -244,7 +265,7 @@ while running:
             del p2bullets[count]
             continue
         screen.blit(bullet.image, (bullet.x, bullet.y))
-        if bullet.y < 0:
+        if bullet.y > HEIGHT + BULLETHEIGHT:
             del p2bullets[count]
 
     pygame.display.flip()
