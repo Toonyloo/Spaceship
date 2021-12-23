@@ -1,13 +1,14 @@
 import pygame
-from constants import *
+from constants import Const, Images
 import projectiles
+
 
 class Player1(pygame.sprite.Sprite):
     def __init__(self):
         super(Player1, self).__init__()
-        self.image = SHIP1
-        self.x = WIDTH / 2 - SHIP_WIDTH / 2
-        self.y = (HEIGHT - HEIGHT // 4) - SHIP_HEIGHT
+        self.image = Images.SHIP1
+        self.x = Const.WIDTH / 2 - Const.SHIP_WIDTH / 2
+        self.y = (Const.HEIGHT - Const.HEIGHT // 4) - Const.SHIP_HEIGHT
         self.x_speed = 0
         self.y_speed = 0
         self.health = 100
@@ -41,9 +42,9 @@ class Player1(pygame.sprite.Sprite):
                         self.bomb.trigger_explosion()
 
     def handle_movement(self):
-        if 0 <= (self.x_speed + self.x) <= WIDTH - SHIP_WIDTH:
+        if 0 <= (self.x_speed + self.x) <= Const.WIDTH - Const.SHIP_WIDTH:
             self.x += self.x_speed
-        if HEIGHT / 2 <= (self.y_speed + self.y) <= HEIGHT - SHIP_HEIGHT - HP_BAR_HEIGHT:
+        if Const.HEIGHT / 2 <= (self.y_speed + self.y) <= Const.HEIGHT - Const.SHIP_HEIGHT - Const.HP_BAR_HEIGHT:
             self.y += self.y_speed
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -60,7 +61,7 @@ class Player1(pygame.sprite.Sprite):
     def handle_bomb(self):
         if self.bomb is None:
             return
-        if self.bomb.y < 0 - BOMB_HEIGHT:
+        if self.bomb.y < 0 - Const.BOMB_HEIGHT:
             self.bomb = None
             return
 
@@ -81,9 +82,9 @@ class Player1(pygame.sprite.Sprite):
 class Player2(pygame.sprite.Sprite):
     def __init__(self):
         super(Player2, self).__init__()
-        self.image = SHIP2
-        self.x = WIDTH / 2 - SHIP_WIDTH / 2
-        self.y = HEIGHT // 4
+        self.image = Images.SHIP2
+        self.x = Const.WIDTH / 2 - Const.SHIP_WIDTH / 2
+        self.y = Const.HEIGHT // 4
         self.x_speed = 0
         self.y_speed = 0
         self.health = 100
@@ -117,9 +118,9 @@ class Player2(pygame.sprite.Sprite):
                         self.bomb.trigger_explosion()
 
     def handle_movement(self):
-        if 0 <= (self.x_speed + self.x) <= WIDTH - SHIP_WIDTH:
+        if 0 <= (self.x_speed + self.x) <= Const.WIDTH - Const.SHIP_WIDTH:
             self.x += self.x_speed
-        if HP_BAR_HEIGHT <= (self.y_speed + self.y) <= (HEIGHT / 2) - SHIP_HEIGHT:
+        if Const.HP_BAR_HEIGHT <= (self.y_speed + self.y) <= (Const.HEIGHT / 2) - Const.SHIP_HEIGHT:
             self.y += self.y_speed
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -129,13 +130,13 @@ class Player2(pygame.sprite.Sprite):
     def handle_bullets(self):
         for count, bullet in enumerate(self.bullets):
             bullet.handle_movement()
-            if bullet.y > HEIGHT + BULLET_HEIGHT:
+            if bullet.y > Const.HEIGHT + Const.BULLET_HEIGHT:
                 del self.bullets[count]
 
     def handle_bomb(self):
         if self.bomb is None:
             return
-        if self.bomb.y > HEIGHT:
+        if self.bomb.y > Const.HEIGHT:
             self.bomb = None
             return
 

@@ -1,16 +1,16 @@
 import pygame
-from constants import *
+from constants import Const, Images, Sfx
 pygame.init()
 
 class Bullet1(pygame.sprite.Sprite):
     def __init__(self, coords):
         super(Bullet1, self).__init__()
-        self.image = LASER1
-        self.x = coords[0] + (SHIP_WIDTH - BULLET_WIDTH) / 2
+        self.image = Images.LASER1
+        self.x = coords[0] + (Const.SHIP_WIDTH - Const.BULLET_WIDTH) / 2
         self.y = coords[1]
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.image = LASER1
-        LASER_SFX.play()
+        self.image = Images.LASER1
+        Sfx.LASER.play()
 
     def handle_movement(self):
         self.y -= 15
@@ -23,11 +23,11 @@ class Bullet1(pygame.sprite.Sprite):
 class Bullet2(pygame.sprite.Sprite):
     def __init__(self, coords):
         super(Bullet2, self).__init__()
-        self.image = LASER2
-        self.x = coords[0] + (SHIP_WIDTH - BULLET_WIDTH) / 2
+        self.image = Images.LASER2
+        self.x = coords[0] + (Const.SHIP_WIDTH - Const.BULLET_WIDTH) / 2
         self.y = coords[1]
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        LASER_SFX.play()
+        Sfx.LASER.play()
 
     def handle_movement(self):
         self.y += 15
@@ -40,12 +40,12 @@ class Bullet2(pygame.sprite.Sprite):
 class Bomb1(pygame.sprite.Sprite):
     def __init__(self, coords):
         super(Bomb1, self).__init__()
-        self.image = BOMB1
-        self.x = coords[0] + (SHIP_WIDTH - BOMB_WIDTH) / 2
+        self.image = Images.BOMB1
+        self.x = coords[0] + (Const.SHIP_WIDTH - Const.BOMB_WIDTH) / 2
         self.y = coords[1]
         self.detonation = None
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        BOMB_SHOOT_SFX.play()
+        Sfx.BOMB_SHOOT.play()
 
     def handle_movement(self):
         self.y -= 8
@@ -54,17 +54,17 @@ class Bomb1(pygame.sprite.Sprite):
     def explosion(self):
         self.detonation -= 1
         frame = (self.detonation % 4) + 11
-        image = EXPLOSION[frame]
-        image = pygame.transform.scale(image, (EXPLOSION_SIZE, EXPLOSION_SIZE))
+        image = Images.EXPLOSION[frame]
+        image = pygame.transform.scale(image, (Const.EXPLOSION_SIZE, Const.EXPLOSION_SIZE))
         self.image = image
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
     def trigger_explosion(self):
         if self.detonation is None:
-            BOMB_DETONATE_SFX.play()
-            self.x -= EXPLOSION_SIZE / 2
-            self.y -= EXPLOSION_SIZE / 2
-            self.detonation = DETONATION_TIME
+            Sfx.BOMB_DETONATE.play()
+            self.x -= Const.EXPLOSION_SIZE / 2
+            self.y -= Const.EXPLOSION_SIZE / 2
+            self.detonation = Const.DETONATION_TIME
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
@@ -73,12 +73,12 @@ class Bomb1(pygame.sprite.Sprite):
 class Bomb2(pygame.sprite.Sprite):
     def __init__(self, coords):
         super(Bomb2, self).__init__()
-        self.image = BOMB2
-        self.x = coords[0] + (SHIP_WIDTH - BOMB_WIDTH) / 2
+        self.image = Images.BOMB2
+        self.x = coords[0] + (Const.SHIP_WIDTH - Const.BOMB_WIDTH) / 2
         self.y = coords[1]
         self.detonation = None
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        BOMB_SHOOT_SFX.play()
+        Sfx.BOMB_SHOOT.play()
 
     def handle_movement(self):
         self.y += 8
@@ -87,17 +87,17 @@ class Bomb2(pygame.sprite.Sprite):
     def explosion(self):
         self.detonation -= 1
         frame = (self.detonation % 4) + 11
-        image = EXPLOSION[frame]
-        image = pygame.transform.scale(image, (EXPLOSION_SIZE, EXPLOSION_SIZE))
+        image = Images.EXPLOSION[frame]
+        image = pygame.transform.scale(image, (Const.EXPLOSION_SIZE, Const.EXPLOSION_SIZE))
         self.image = image
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
     def trigger_explosion(self):
         if self.detonation is None:
-            BOMB_DETONATE_SFX.play()
-            self.x -= EXPLOSION_SIZE / 2
-            self.y -= EXPLOSION_SIZE / 2
-            self.detonation = DETONATION_TIME
+            Sfx.BOMB_DETONATE.play()
+            self.x -= Const.EXPLOSION_SIZE / 2
+            self.y -= Const.EXPLOSION_SIZE / 2
+            self.detonation = Const.DETONATION_TIME
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
