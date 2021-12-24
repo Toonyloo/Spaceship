@@ -2,6 +2,7 @@ import pygame
 from constants import Const, Images, Sfx
 pygame.init()
 
+
 class Bullet1(pygame.sprite.Sprite):
     def __init__(self, coords):
         super(Bullet1, self).__init__()
@@ -61,10 +62,11 @@ class Bomb1(pygame.sprite.Sprite):
 
     def trigger_explosion(self):
         if self.detonation is None:
-            Sfx.BOMB_DETONATE.play()
-            self.x -= Const.EXPLOSION_SIZE / 2
-            self.y -= Const.EXPLOSION_SIZE / 2
+            self.image = Images.EXPLOSION[13]
+            self.x -= (Const.EXPLOSION_SIZE - Const.BOMB_WIDTH) / 2
+            self.y -= (Const.EXPLOSION_SIZE - Const.BOMB_HEIGHT) / 2
             self.detonation = Const.DETONATION_TIME
+            Sfx.BOMB_DETONATE.play()
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
@@ -94,10 +96,11 @@ class Bomb2(pygame.sprite.Sprite):
 
     def trigger_explosion(self):
         if self.detonation is None:
-            Sfx.BOMB_DETONATE.play()
-            self.x -= Const.EXPLOSION_SIZE / 2
-            self.y -= Const.EXPLOSION_SIZE / 2
+            self.image = Images.EXPLOSION[13]
+            self.x -= (Const.EXPLOSION_SIZE - Const.BOMB_WIDTH) / 2
+            self.y -= (Const.EXPLOSION_SIZE - Const.BOMB_HEIGHT) / 2
             self.detonation = Const.DETONATION_TIME
+            Sfx.BOMB_DETONATE.play()
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))

@@ -13,14 +13,15 @@ class Const:
     BOMB_WIDTH = 35
     BOMB_HEIGHT = 50
     EXPLOSION_SIZE = 175
-    DETONATION_TIME = 120
-    BOMB_DMG = 0.3
+    DETONATION_TIME = 60
+    BOMB_DMG = 0.5
     LASER_DMG = 5
 
 
 class Colours:
     WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
     RED = (255, 0, 0)
     BLACK = (0, 0, 0)
 

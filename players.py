@@ -1,5 +1,5 @@
 import pygame
-from constants import Const, Images
+from constants import Const, Images, Fonts, Colours
 import projectiles
 
 
@@ -32,7 +32,9 @@ class Player1(pygame.sprite.Sprite):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if self.ammo > 0:
+                    if self.health < 20:
+                        self.bullets.append(projectiles.Bullet1((self.x, self.y)))
+                    elif self.ammo > 0:
                         self.ammo -= 1
                         self.bullets.append(projectiles.Bullet1((self.x, self.y)))
                 if event.key == pygame.K_f:
@@ -50,6 +52,24 @@ class Player1(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
+
+    def draw_ammo_txt(self, screen):
+        if self.health < 20:
+            msg = 'Ammo:OVERLOADED!!'
+            txt = Fonts.FONT.render(msg, True, Colours.RED)
+        else:
+            msg = f'Ammo:{self.ammo}'
+            txt = Fonts.FONT.render(msg, True, Colours.WHITE)
+        txt_width, txt_height = Fonts.FONT.size(msg)
+        screen.blit(txt, (Const.WIDTH - txt_width, Const.HEIGHT - Const.HP_BAR_HEIGHT - txt_height))
+
+    def draw_hpbar(self, screen):
+        pygame.draw.line(screen, Colours.WHITE, (0, Const.HEIGHT/2), (Const.WIDTH, Const.HEIGHT/2))
+        hp_section = Const.WIDTH * self.health / 100
+        remaining_hp = pygame.Rect(0, Const.HEIGHT - Const.HP_BAR_HEIGHT, hp_section, Const.HP_BAR_HEIGHT)
+        missing_hp = pygame.Rect(hp_section, Const.HEIGHT - Const.HP_BAR_HEIGHT, Const.WIDTH - hp_section, Const.HP_BAR_HEIGHT)
+        pygame.draw.rect(screen, Colours.GREEN, remaining_hp)
+        pygame.draw.rect(screen, Colours.RED, missing_hp)
 
     def handle_bullets(self):
         for count, bullet in enumerate(self.bullets):
@@ -72,8 +92,7 @@ class Player1(pygame.sprite.Sprite):
         elif self.bomb.detonation == 0:
             self.bomb = None
 
-    def handle_all_logic(self, keys, events):
-        self.handle_input(keys, events)
+    def handle_all_logic(self):
         self.handle_movement()
         self.handle_bullets()
         self.handle_bomb()
@@ -108,7 +127,9 @@ class Player2(pygame.sprite.Sprite):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RSHIFT:
-                    if self.ammo > 0:
+                    if self.health < 20:
+                        self.bullets.append(projectiles.Bullet2((self.x, self.y)))
+                    elif self.ammo > 0:
                         self.ammo -= 1
                         self.bullets.append(projectiles.Bullet2((self.x, self.y)))
                 if event.key == pygame.K_SLASH:
@@ -126,6 +147,23 @@ class Player2(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
+
+    def draw_ammo_txt(self, screen):
+        if self.health < 20:
+            msg = 'Ammo:OVERLOADED!!'
+            txt = Fonts.FONT.render(msg, True, Colours.RED)
+        else:
+            msg = f'Ammo:{self.ammo}'
+            txt = Fonts.FONT.render(msg, True, Colours.WHITE)
+        txt_width, txt_height = Fonts.FONT.size(msg)
+        screen.blit(txt, (Const.WIDTH - txt_width, Const.HP_BAR_HEIGHT))
+
+    def draw_hpbar(self, screen):
+        hp_section = Const.WIDTH * self.health / 100
+        remaining_hp = pygame.Rect(0, 0, hp_section, Const.HP_BAR_HEIGHT)
+        missing_hp = pygame.Rect(hp_section, 0, Const.WIDTH - hp_section, Const.HP_BAR_HEIGHT)
+        pygame.draw.rect(screen, Colours.GREEN, remaining_hp)
+        pygame.draw.rect(screen, Colours.RED, missing_hp)
 
     def handle_bullets(self):
         for count, bullet in enumerate(self.bullets):
@@ -147,8 +185,7 @@ class Player2(pygame.sprite.Sprite):
         elif self.bomb.detonation == 0:
             self.bomb = None
 
-    def handle_all_logic(self, keys, events):
-        self.handle_input(keys, events)
+    def handle_all_logic(self):
         self.handle_movement()
         self.handle_bullets()
         self.handle_bomb()

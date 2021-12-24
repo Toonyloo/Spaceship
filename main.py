@@ -14,25 +14,11 @@ clock = pygame.time.Clock()
 def draw_game():
     screen.fill(Colours.BLACK)
     screen.blit(Images.BACKGROUND, (0, 0))
-    pygame.draw.line(screen, Colours.WHITE, (0, Const.HEIGHT/2), (Const.WIDTH, Const.HEIGHT/2))
-    hp_section = Const.WIDTH * p1.health / 100
-    remaining_hp = pygame.Rect(0, Const.HEIGHT - Const.HP_BAR_HEIGHT, hp_section, Const.HP_BAR_HEIGHT)
-    missing_hp = pygame.Rect(hp_section, Const.HEIGHT - Const.HP_BAR_HEIGHT, Const.WIDTH - hp_section, Const.HP_BAR_HEIGHT)
-    pygame.draw.rect(screen, Colours.GREEN, remaining_hp)
-    pygame.draw.rect(screen, Colours.RED, missing_hp)
 
-    hp_section = Const.WIDTH * p2.health / 100
-    remaining_hp = pygame.Rect(0, 0, hp_section, Const.HP_BAR_HEIGHT)
-    missing_hp = pygame.Rect(hp_section, 0, Const.WIDTH - hp_section, Const.HP_BAR_HEIGHT)
-    pygame.draw.rect(screen, Colours.GREEN, remaining_hp)
-    pygame.draw.rect(screen, Colours.RED, missing_hp)
-
-    p1_ammo_txt = Fonts.FONT.render(f'Ammo:{p1.ammo}', True, Colours.WHITE)
-    p2_ammo_txt = Fonts.FONT.render(f'Ammo:{p2.ammo}', True, Colours.WHITE)
-    p1_ammo_width, p1_ammo_height = Fonts.FONT.size(f'Ammo:{p1.ammo}')
-    p2_ammo_width, p2_ammo_height = Fonts.FONT.size(f'Ammo:{p2.ammo}')
-    screen.blit(p1_ammo_txt, (Const.WIDTH - p1_ammo_width, Const.HEIGHT - Const.HP_BAR_HEIGHT - p1_ammo_height))
-    screen.blit(p2_ammo_txt, (Const.WIDTH - p2_ammo_width, Const.HP_BAR_HEIGHT))
+    p1.draw_hpbar(screen)
+    p2.draw_hpbar(screen)
+    p1.draw_ammo_txt(screen)
+    p2.draw_ammo_txt(screen)
 
     for bullet in p1.bullets:
         bullet.draw(screen)
@@ -55,6 +41,10 @@ def handle_collisions():
                 Sfx.DAMAGE.play()
                 defender.health -= Const.LASER_DMG
                 del attacker.bullets[count]
+            if defender.bomb is not None:
+                if pygame.sprite.collide_mask(bullet, defender.bomb):
+                    defender.bomb.trigger_explosion()
+                    del attacker.bullets[count]
 
         if attacker.bomb is not None:
             if attacker.bomb.detonation is None:
@@ -63,6 +53,12 @@ def handle_collisions():
             else:
                 if pygame.sprite.collide_mask(attacker.bomb, defender):
                     defender.health -= Const.BOMB_DMG
+                if pygame.sprite.collide_mask(attacker.bomb, attacker):
+                    attacker.health -= Const.BOMB_DMG
+            if defender.bomb is not None:
+                if pygame.sprite.collide_mask(attacker.bomb, defender.bomb):
+                    attacker.bomb.trigger_explosion()
+                    defender.bomb.trigger_explosion()
 
 
 running = True
@@ -108,8 +104,10 @@ while running:
             Sfx.EXPLOSION.play()
             continue
 
-        p1.handle_all_logic(keys, events)
-        p2.handle_all_logic(keys, events)
+        p1.handle_input(keys, events)
+        p2.handle_input(keys, events)
+        p1.handle_all_logic()
+        p2.handle_all_logic()
 
         handle_collisions()
         draw_game()
@@ -131,11 +129,11 @@ while running:
             msg = 'PLAY AGAIN?'
             msg_width, msg_height = Fonts.TITLE_FONT.size(msg)
             text = Fonts.TITLE_FONT.render(msg, True, Colours.WHITE)
-            screen.blit(text, ((Const.WIDTH - msg_width) // 2, Const.HEIGHT // 2 - msg_height - 20))
+            screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 - msg_height - 20))
 
             msg = '(Press Space)'
             msg_width, msg_height = Fonts.TITLE_FONT.size(msg)
             text = Fonts.TITLE_FONT.render(msg, True, Colours.WHITE)
-            screen.blit(text, ((Const.WIDTH - msg_width) // 2, Const.HEIGHT // 2 + 20))
+            screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 + 20))
 
     pygame.display.flip()
