@@ -1,4 +1,6 @@
 import pygame
+import random
+from collections import deque
 from constants import Const, Images, Fonts, Colours
 import projectiles
 
@@ -99,7 +101,7 @@ class Player1(pygame.sprite.Sprite):
 
 
 class Player2(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, cpu=False):
         super(Player2, self).__init__()
         self.image = Images.SHIP2
         self.x = Const.WIDTH / 2 - Const.SHIP_WIDTH / 2
@@ -111,6 +113,11 @@ class Player2(pygame.sprite.Sprite):
         self.bullets = []
         self.bomb = None
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        
+        if cpu:
+            self.ai_move_delay = deque()
+            self.shoot_cd = 0
+            self.start_delay = 40
 
     def handle_input(self, keys, events):
         self.x_speed = 0
@@ -137,6 +144,44 @@ class Player2(pygame.sprite.Sprite):
                         self.bomb = projectiles.Bomb2((self.x, self.y))
                     else:
                         self.bomb.trigger_explosion()
+
+    def handle_ai_input(self, player):
+        rand = random.random()
+        if self.start_delay > 0:
+            self.start_delay -= 1
+            return
+        
+        if rand > 0.9:
+            self.ai_move_delay.append(random.choice((-10, 0, 10)))
+        elif self.x < player.x:
+            self.ai_move_delay.append(10)
+        elif self.x > player.x:
+            self.ai_move_delay.append(-10)
+        else:
+            self.ai_move_delay.append(0)
+        
+        if len(self.ai_move_delay) > 15:
+            self.x_speed = self.ai_move_delay.popleft()
+        
+        if self.y_speed == 0:
+            self.y_speed = 10
+        else:
+            if rand > 0.98:
+                self.y_speed = -self.y_speed
+        
+        if self.ammo > 0:
+            if self.shoot_cd == 0:
+                self.bullets.append(projectiles.Bullet2((self.x, self.y)))
+                self.ammo -= 1
+                self.shoot_cd = rand * 25 + 5
+            else:
+                self.shoot_cd -= 1
+        
+        if self.bomb is None:
+            self.bomb = projectiles.Bomb2((self.x, self.y))
+        elif self.bomb.detonation is None:
+            if self.bomb.y > player.y:
+                self.bomb.trigger_explosion()
 
     def handle_movement(self):
         if 0 <= (self.x_speed + self.x) <= Const.WIDTH - Const.SHIP_WIDTH:
@@ -189,3 +234,4 @@ class Player2(pygame.sprite.Sprite):
         self.handle_movement()
         self.handle_bullets()
         self.handle_bomb()
+

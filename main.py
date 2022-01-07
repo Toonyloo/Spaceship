@@ -66,6 +66,7 @@ p1 = players.Player1()
 p2 = players.Player2()
 ammo_timer = 0
 loser = None
+mode = None
 
 while running:
     clock.tick(60)
@@ -75,7 +76,37 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if loser is None:
+    if mode == None:
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    mode = 1
+                    p1 = players.Player1()
+                    p2 = players.Player2(cpu=True)
+                if event.key == pygame.K_2:
+                    mode = 2
+                    p1 = players.Player1()
+                    p2 = players.Player2()
+
+        screen.blit(Images.BACKGROUND, (0, 0))
+        msg = '1 Player Mode'
+        msg_width, msg_height = Fonts.TITLE_FONT.size(msg)
+        text = Fonts.TITLE_FONT.render(msg, True, Colours.WHITE)
+        screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 - msg_height - 50))
+        msg = '(Press 1)'
+        msg_width, msg_height = Fonts.FONT.size(msg)
+        text = Fonts.FONT.render(msg, True, Colours.WHITE)
+        screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 - msg_height - 20))
+        msg = '2 Player Mode'
+        msg_width, msg_height = Fonts.TITLE_FONT.size(msg)
+        text = Fonts.TITLE_FONT.render(msg, True, Colours.WHITE)
+        screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 + 20))
+        msg = '(Press 2)'
+        msg_width, msg_height = Fonts.FONT.size(msg)
+        text = Fonts.FONT.render(msg, True, Colours.WHITE)
+        screen.blit(text, ((Const.WIDTH - msg_width) / 2, Const.HEIGHT / 2 - msg_height + 90))
+        
+    elif loser is None:
         if ammo_timer < 30:
             ammo_timer += 1
         else:
@@ -105,13 +136,15 @@ while running:
             continue
 
         p1.handle_input(keys, events)
-        p2.handle_input(keys, events)
+        if mode == 1:
+            p2.handle_ai_input(p1)
+        if mode == 2:
+            p2.handle_input(keys, events)
         p1.handle_all_logic()
         p2.handle_all_logic()
 
         handle_collisions()
         draw_game()
-
     else:
         if animation_timer < 150:
             frame = animation_timer // 6
@@ -122,9 +155,8 @@ while running:
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        p1 = players.Player1()
-                        p2 = players.Player2()
                         loser = None
+                        mode = None
             screen.blit(Images.BACKGROUND, (0, 0))
             msg = 'PLAY AGAIN?'
             msg_width, msg_height = Fonts.TITLE_FONT.size(msg)
