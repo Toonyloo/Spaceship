@@ -134,7 +134,7 @@ class Player2(pygame.sprite.Sprite):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RSHIFT:
-                    if self.health < 20:
+                    if self.health < 25:
                         self.bullets.append(projectiles.Bullet2((self.x, self.y)))
                     elif self.ammo > 0:
                         self.ammo -= 1
@@ -172,8 +172,11 @@ class Player2(pygame.sprite.Sprite):
         if self.ammo > 0:
             if self.shoot_cd == 0:
                 self.bullets.append(projectiles.Bullet2((self.x, self.y)))
-                self.ammo -= 1
-                self.shoot_cd = rand * 25 + 5
+                if self.health >= 25:
+                    self.shoot_cd = int(rand * 25 + 8)
+                    self.ammo -= 1
+                else:
+                    self.shoot_cd = 5
             else:
                 self.shoot_cd -= 1
         
@@ -234,4 +237,3 @@ class Player2(pygame.sprite.Sprite):
         self.handle_movement()
         self.handle_bullets()
         self.handle_bomb()
-
